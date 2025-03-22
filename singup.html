@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ตรวจสอบหมายเลขโทรศัพท์และ IP</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #121212;
+            color: white;
+            text-align: center;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+        }
+        .container {
+            background-color: #333;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+            max-width: 500px;
+            width: 100%;
+        }
+        input, button {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        .result {
+            margin-top: 10px;
+            padding: 10px;
+            background-color: #222;
+            border-radius: 5px;
+        }
+
+        /* เมนูสไลด์ขวา */
+        .menu {
+            position: fixed;
+            right: -220px;
+            top: 0;
+            width: 200px;
+            height: 100vh;
+            background-color: #222;
+            box-shadow: -2px 0 5px rgba(0, 0, 0, 0.5);
+            transition: right 0.3s ease-in-out;
+            display: flex;
+            flex-direction: column;
+            padding-top: 20px;
+            z-index: 1000;
+        }
+        .menu a {
+            color: white;
+            text-decoration: none;
+            padding: 15px;
+            display: block;
+            transition: background 0.3s;
+        }
+        .menu a:hover {
+            background-color: #444;
+        }
+
+        /* ปุ่มแสดงเมนู */
+        .menu-toggle {
+            position: fixed;
+            right: 0;
+            top: 50%;
+            width: 40px;
+            height: 80px;
+            background-color: #444;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transform: translateY(-50%);
+            border-radius: 10px 0 0 10px;
+        }
+
+        /* แสดงเมนูเมื่อ hover */
+        .menu-container {
+            position: fixed;
+            top: 0;
+            right: 0;
+            height: 100vh;
+        }
+        .menu-container:hover .menu {
+            right: 0;
+        }
+        /* หิมะตก */
+        .snowflake {
+            position: fixed;
+            top: -10px;
+            color: white;
+            opacity: 0.8;
+            user-select: none;
+            pointer-events: none;
+            animation: fall linear infinite;
+        }
+
+        @keyframes fall {
+            0% { transform: translateY(0px); opacity: 0.8; }
+            100% { transform: translateY(100vh); opacity: 0; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- เมนูด้านขวา -->
+<div class="menu-container">
+    <div class="menu">
+        <a href="body.html"> หน้าแรก</a>
+        <a href="pn.html"> พาร์ทเนอร์</a>
+        <a href="rp.html"> เช็คผู้เล่นFIVEM RP</a>
+        <a href="tn.html"> เช็คผู้เล่นFIVEM TN</a>
+        <a href="index.html">ออกจากระบบ</a>
+    </div>
+    <div class="menu-toggle">➡️</div>
+</div>
+
+<div class="container">
+    <h1>ตรวจสอบข้อมูล</h1>
+
+    <h2>ตรวจสอบหมายเลขโทรศัพท์</h2>
+    <input type="text" id="phoneNumber" placeholder="ใส่หมายเลขโทรศัพท์">
+    <input type="text" id="countryCode" placeholder="รหัสประเทศ (TH)">
+    <button onclick="checkPhoneNumber()">ตรวจสอบหมายเลข</button>
+    <div id="phoneResult" class="result"></div>
+
+    <h2>ตรวจสอบ IP Address</h2>
+    <input type="text" id="ipAddress" placeholder="ใส่ IP Address">
+    <button onclick="checkIpAddress()">ตรวจสอบ IP</button>
+    <div id="ipResult" class="result"></div>
+</div>
+
+<script>
+    async function checkIpAddress() {
+        const ip = document.getElementById('ipAddress').value;
+        const resultDiv = document.getElementById('ipResult');
+
+        if (!ip) {
+            resultDiv.innerHTML = "<p style='color: red;'>กรุณาระบุ IP Address</p>";
+            return;
+        }
+
+        try {
+            const response = await fetch(`https://ipinfo.io/${ip}/json?token=4553b42dfc4f1b`);
+            const data = await response.json();
+            console.log(data); // Debugging purpose
+
+            if (data.error) {
+                resultDiv.innerHTML = `<p style='color: red;'>${data.error}</p>`;
+            } else {
+                resultDiv.innerHTML = `
+                    <p>IP: ${data.ip}</p>
+                    <p>ประเทศ: ${data.country}</p>
+                    <p>เมือง: ${data.city}</p>
+                    <p>ตำแหน่ง: <a href="https://www.google.com/maps?q=${data.loc}" target="_blank">ดูใน Google Maps</a></p>
+                `;
+            }
+        } catch (error) {
+            resultDiv.innerHTML = "<p style='color: red;'>เกิดข้อผิดพลาดในการตรวจสอบ IP</p>";
+        }
+    }
+
+    async function checkPhoneNumber() {
+        const number = document.getElementById('phoneNumber').value;
+        const country = document.getElementById('countryCode').value || 'TH'; // Default to 'TH' if no country code is entered
+        const resultDiv = document.getElementById('phoneResult');
+
+        if (!number) {
+            resultDiv.innerHTML = "<p style='color: red;'>กรุณาระบุหมายเลขโทรศัพท์</p>";
+            return;
+        }
+
+        // Check if the number starts with a valid digit (optional, just for basic validation)
+        if (!/^\d+$/.test(number)) {
+            resultDiv.innerHTML = "<p style='color: red;'>หมายเลขโทรศัพท์ไม่ถูกต้อง</p>";
+            return;
+        }
+
+        try {
+            const response = await fetch(`https://api.apilayer.com/number_verification/validate?access_key=6d65e677b6b0a5f31a3b3ce2354a79cc&number=${number}&country_code=${country}`);
+            const data = await response.json();
+            console.log(data); // Debugging purpose
+
+            // ตรวจสอบข้อมูลที่ได้รับจาก API
+            if (!data || data.success === false || data.valid === false) {
+                resultDiv.innerHTML = "<p style='color: red;'>หมายเลขโทรศัพท์ไม่ถูกต้อง หรือเกิดข้อผิดพลาดในการตรวจสอบ</p>";
+            } else {
+                // แสดงผลข้อมูล
+                resultDiv.innerHTML = `
+                    <p>หมายเลข: ${data.number || 'ข้อมูลไม่พบ'}</p>
+                    <p>ประเทศ: ${data.country_name || 'ข้อมูลไม่พบ'}</p>
+                    <p>เครือข่าย: ${data.carrier || 'ข้อมูลไม่พบ'}</p>
+                    <p>หมายเลขถูกต้อง: ${data.valid ? 'ใช่' : 'ไม่ใช่'}</p>
+                `;
+            }
+        } catch (error) {
+            resultDiv.innerHTML = "<p style='color: red;'>เกิดข้อผิดพลาดในการตรวจสอบหมายเลข</p>";
+        }
+    }
+
+        function createSnowflake() {
+        const snowflake = document.createElement("div");
+        snowflake.classList.add("snowflake");
+        snowflake.innerHTML = "❄";
+        document.body.appendChild(snowflake);
+
+        let size = Math.random() * 20 + 5;
+        let left = Math.random() * window.innerWidth;
+        let duration = Math.random() * 5 + 3;
+
+        snowflake.style.left = `${left}px`;
+        snowflake.style.fontSize = `${size}px`;
+        snowflake.style.animationDuration = `${duration}s`;
+
+        setTimeout(() => {
+            snowflake.remove();
+        }, duration * 1000);
+    }
+
+    setInterval(createSnowflake, 300);
+</script>
+
+</body>
+</html>
