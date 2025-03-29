@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ตรวจสอบหมายเลขโทรศัพท์และ IP</title>
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #0d1117;
+            color: white;
+            text-align: center;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+        }
+        .container {
+            background: linear-gradient(135deg, #1f2937, #374151);
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            max-width: 500px;
+            width: 100%;
+        }
+        input, button {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            border-radius: 8px;
+            border: none;
+        }
+        input {
+            background: #2d3748;
+            color: white;
+        }
+        button {
+            background: linear-gradient(135deg, #000000, #6b6b6b);
+            color: white;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        .result {
+            margin-top: 15px;
+            padding: 12px;
+            background-color: #222;
+            border-radius: 8px;
+        }
+        .navbar {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background: linear-gradient(90deg, #000000, #838383);
+            padding: 10px 0;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.9);
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            z-index: 1000;
+            animation: slideDown 1s ease-in-out;
+        }
+
+        .navbar a {
+            color: #fff;
+            text-decoration: none;
+            font-weight: 600;
+            padding: 10px 15px;
+            transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out, color 0.3s ease-in-out;
+            position: relative;
+        }
+
+        .navbar a::before {
+            content: "";
+            position: absolute;
+            bottom: -3px;
+            left: 0;
+            width: 0;
+            height: 3px;
+            background: #00ffff;
+            transition: width 0.3s ease-in-out;
+        }
+
+        .navbar a:hover {
+            transform: rotateY(10deg) translateY(-5px);
+            box-shadow: 0 0 15px rgba(0, 198, 255, 0.8), 0 0 25px rgba(0, 255, 255, 0.5);
+            color: #00ffff;
+        }
+
+        .navbar a:hover::before {
+            width: 100%;
+        }
+
+        .container {
+            background: rgba(0, 0, 0, 0.9);
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 0 40px rgba(0, 198, 255, 0.8);
+            max-width: 500px;
+            width: 100%;
+            text-align: center;
+            animation: fadeIn 1s ease-in-out, pulse 3s infinite alternate, glowBorder 4s infinite alternate, neonGlow 5s infinite alternate;
+            margin-top: 30px;
+        }
+
+        .message {
+            font-size: 2.5em;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #00c6ff;
+            text-shadow: 0 0 15px #00c6ff, 0 0 25px #0072ff;
+            letter-spacing: 2px;
+            animation: textGlow 2s infinite alternate, bounceIn 2s ease-out;
+        }
+
+        /* หิมะตก */
+.snowflake {
+    position: fixed;
+    top: -10px;
+    color: white;
+    opacity: 0.8;
+    user-select: none;
+    pointer-events: none;
+    animation: fall linear infinite;
+}
+
+@keyframes fall {
+    0% { transform: translateY(0px); opacity: 0.8; }
+    100% { transform: translateY(100vh); opacity: 0; }
+}
+</style>
+</head>
+<body>
+    <div class="navbar">
+        <a href="body.html">หน้าแรก</a>
+        <a href="rp.html">เช็คผู้เล่นFIVEM RP</a>
+        <a href="tn.html">เช็คผู้เล่นFIVEM TN</a>
+        <a href="https://www.facebook.com/lakksjslal.ksksiksks">แจ้งปัญหาด่วน</a>
+        <a href="index.html">ออกจากระบบ</a>
+    </div>
+
+<div class="container">
+    <h2>CHECK NUMBER PHONE</h2>
+    <input type="text" id="phoneNumber" placeholder="ใส่หมายเลขโทรศัพท์">
+    <input type="text" id="countryCode" placeholder="รหัสประเทศ (TH)">
+    <button onclick="checkPhoneNumber()">ตรวจสอบหมายเลข</button>
+    <div id="phoneResult" class="result"></div>
+
+    <h2>CHECK IP ADDRESS</h2>
+    <input type="text" id="ipAddress" placeholder="ใส่ IP Address">
+    <button onclick="checkIpAddress()">ตรวจสอบ IP</button>
+    <div id="ipResult" class="result"></div>
+</div>
+
+<script>
+    async function checkIpAddress() {
+        const ip = document.getElementById('ipAddress').value;
+        const resultDiv = document.getElementById('ipResult');
+
+        if (!ip) {
+            resultDiv.innerHTML = "<p style='color: red;'>กรุณาระบุ IP ADDRESS</p>";
+            return;
+        }
+
+        try {
+            const response = await fetch(`https://ipinfo.io/${ip}/json?token=4553b42dfc4f1b`);
+            const data = await response.json();
+            console.log(data); // Debugging purpose
+
+            if (data.error) {
+                resultDiv.innerHTML = `<p style='color: red;'>${data.error}</p>`;
+            } else {
+                resultDiv.innerHTML = `
+                    <p>IP: ${data.ip}</p>
+                    <p>ประเทศ: ${data.country}</p>
+                    <p>เมือง: ${data.city}</p>
+                    <p>ตำแหน่ง: <a href="https://www.google.com/maps?q=${data.loc}" target="_blank">ดูใน Google Maps</a></p>
+                `;
+            }
+        } catch (error) {
+            resultDiv.innerHTML = "<p style='color: red;'>เกิดข้อผิดพลาดในการตรวจสอบ IP</p>";
+        }
+    }
+
+    async function checkPhoneNumber() {
+    const number = document.getElementById('phoneNumber').value.trim();
+    const country = document.getElementById('countryCode').value.trim() || 'TH'; // Default 'TH' if empty
+    const resultDiv = document.getElementById('phoneResult');
+
+    if (!number) {
+        resultDiv.innerHTML = "<p style='color: red;'>กรุณาระบุหมายเลขโทรศัพท์</p>";
+        return;
+    }
+    resultDiv.innerHTML = "<p style='color: yellow;'>กำลังตรวจสอบ...</p>";
+    if (!/^[0-9]+$/.test(number)) {
+        resultDiv.innerHTML = "<p style='color: red;'>หมายเลขโทรศัพท์ไม่ถูกต้อง</p>";
+        return;
+    }
+
+    try {
+        const apiKey = 'T5YFzBXr1rPxdbZBtqbOh5qi7HOvcWhR'; // Replace with a valid API key
+        const url = `https://api.apilayer.com/number_verification/validate?access_key=${apiKey}&number=${number}&country_code=${country}`;
+        
+        console.log(`Fetching URL: ${url}`); // Debug URL
+        
+        const response = await fetch(url, {
+            headers: {
+                'apikey': apiKey
+            }
+        });
+        
+        const data = await response.json();
+        console.log('API Response:', data); // Debug API Response
+
+        if (!data || data.valid === false) {
+            resultDiv.innerHTML = "<p style='color: red;'>หมายเลขโทรศัพท์ไม่ถูกต้อง หรือเกิดข้อผิดพลาดในการตรวจสอบ</p>";
+            return;
+        }
+
+        resultDiv.innerHTML = `
+            <p>หมายเลข: ${data.number || 'ข้อมูลไม่พบ'}</p>
+            <p>ประเทศ: ${data.country_name || 'ข้อมูลไม่พบ'}</p>
+            <p>เครือข่าย: ${data.carrier || 'ข้อมูลไม่พบ'}</p>
+            <p>หมายเลขถูกต้อง: ${data.valid ? 'ใช่' : 'ไม่ใช่'}</p>
+        `;
+    } catch (error) {
+        console.error('Error:', error);
+        resultDiv.innerHTML = "<p style='color: red;'>เกิดข้อผิดพลาดในการตรวจสอบหมายเลข</p>";
+    }
+}
+
+
+        function createSnowflake() {
+        const snowflake = document.createElement("div");
+        snowflake.classList.add("snowflake");
+        snowflake.innerHTML = "❄";
+        document.body.appendChild(snowflake);
+
+        let size = Math.random() * 20 + 5;
+        let left = Math.random() * window.innerWidth;
+        let duration = Math.random() * 5 + 3;
+
+        snowflake.style.left = `${left}px`;
+        snowflake.style.fontSize = `${size}px`;
+        snowflake.style.animationDuration = `${duration}s`;
+
+        setTimeout(() => {
+            snowflake.remove();
+        }, duration * 1000);
+    }
+
+    setInterval(createSnowflake, 300);
+    document.addEventListener('contextmenu', function(e) {
+            e.preventDefault(); 
+        });
+
+        document.addEventListener('keydown', function(e) {
+            if (e.keyCode == 123) { 
+                e.preventDefault(); 
+            }
+        });
+        
+</script>
+
+</body>
+</html>
